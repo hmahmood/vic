@@ -24,7 +24,6 @@ import (
 func Begin(msg string) (string, string, time.Time) {
 	pc, _, _, _ := runtime.Caller(1)
 	name := runtime.FuncForPC(pc).Name()
-
 	if msg == "" {
 		log.Printf("[BEGIN] [%s]", name)
 	} else {
