@@ -453,7 +453,7 @@ paths:
       description: "Retrieve info about a container by id"
       summary: "Retrieve a container's info"
       operationId: ContainerInfo
-      tags: ["exec"]
+      tags: ["containers"]
       consumes:
         - application/octet-stream
       produces:

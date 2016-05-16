@@ -29,7 +29,6 @@ import (
 	"github.com/vmware/vic/apiservers/portlayer/restapi/options"
 	"github.com/vmware/vic/pkg/vsphere/session"
 	"github.com/vmware/vic/portlayer/attach"
-	"github.com/vmware/vic/portlayer/network"
 )
 
 // ExecHandlersImpl is the receiver for all of the exec handler methods
@@ -41,7 +40,7 @@ var (
 	interactionSession = &session.Session{}
 )
 
-func (i *InteractionHandlersImpl) Configure(api *operations.PortLayerAPI, netCtx *network.Context) {
+func (i *InteractionHandlersImpl) Configure(api *operations.PortLayerAPI, _ *HandlerContext) {
 	var err error
 
 	api.InteractionContainerResizeHandler = interaction.ContainerResizeHandlerFunc(i.ContainerResizeHandler)

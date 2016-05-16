@@ -20,7 +20,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	goexec "os/exec"
+	"os/exec"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -208,9 +208,9 @@ func (c *Container) ContainerCreate(config types.ContainerCreateConfig) (types.C
 	layer.Config.WorkingDir = config.Config.WorkingDir
 	layer.Config.Entrypoint = config.Config.Entrypoint
 	layer.Config.Env = config.Config.Env
-	layer.ContainerID = *createResults.Payload.ContainerID
+	layer.ContainerID = createResults.Payload.ID
 
-	viccontainer.GetCache().SaveContainer(*createResults.Payload.ContainerID, layer)
+	viccontainer.GetCache().SaveContainer(createResults.Payload.ID, layer)
 
 	// Success!
 	log.Printf("container.ContainerCreate succeeded.  Returning container handle %s", *createResults.Payload)
@@ -590,7 +590,7 @@ func (c *Container) getImageMetadataFromStoragePL(image string) (*viccontainer.V
 	// Call imagec with -resolv parameter to learn the name of the vmdk and put it into in-memory map
 	cmdArgs := []string{"-reference", image, "-resolv", "-standalone", "-destination", os.TempDir()}
 
-	out, err := goexec.Command(Imagec, cmdArgs...).Output()
+	out, err := exec.Command(Imagec, cmdArgs...).Output()
 	if err != nil {
 		log.Printf("%s exit code: %s", Imagec, err)
 		return nil,
@@ -629,11 +629,11 @@ func (c *Container) getContainerConfigFromExecPL(name string) (*container.Config
 	//FIXME:  Handle size look up
 
 	// Get the container info from the port layer
-	plInfoParam := exec.NewContainerInfoParams().WithID(name)
+	plInfoParam := containers.NewContainerInfoParams().WithID(name)
 
-	plContainerInfo, err := client.Exec.ContainerInfo(plInfoParam)
+	plContainerInfo, err := client.Containers.ContainerInfo(plInfoParam)
 	if err != nil {
-		if _, isa := err.(*exec.ContainerInfoNotFound); isa {
+		if _, isa := err.(*containers.ContainerInfoNotFound); isa {
 			return nil, derr.NewRequestNotFoundError(fmt.Errorf("No such container: %s", name))
 		}
 
@@ -654,7 +654,7 @@ func (c *Container) getContainerConfigFromExecPL(name string) (*container.Config
 func TestAttachEnclosed(vc *viccontainer.VicContainer, ca *backend.ContainerAttachConfig) {
 	vc.NewInputPipes()
 
-	cmd := goexec.Command("/home/loc/go/src/github.com/test/test")
+	cmd := exec.Command("/home/loc/go/src/github.com/test/test")
 
 	inStream, outStream, _, err := ca.GetStreams()
 	cmd.Stdout = vc.Stdout()
